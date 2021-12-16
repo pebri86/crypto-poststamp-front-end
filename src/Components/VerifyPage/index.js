@@ -1,0 +1,121 @@
+import React, { useEffect, useState } from 'react';
+import { ethers } from 'ethers';
+import { CONTRACT_ADDRESS } from '../../constants';
+import nftStamp from '../../utils/NFTStamp.json';
+import axios from 'axios';
+
+const VerifyPage = ( { account} ) => {
+	const [contract, setContract] = useState(null);
+	const [loading, setLoading] = useState(false);
+	const [text, setText] = useState("");
+	const [addr, setAddr] = useState(null);
+	const [item, setItem] = useState(null);
+	const [error, setError] = useState(false);
+
+	const onChangeText = (event) => {
+		setText(event.target.value);
+	}
+
+	useEffect(() => {
+		const { ethereum } = window;
+
+		if (ethereum) {
+			const provider = new ethers.providers.Web3Provider(ethereum);
+			const signer = provider.getSigner();
+			const contract = new ethers.Contract(
+				CONTRACT_ADDRESS,
+				nftStamp.abi,
+				signer
+				);
+
+		  /*
+		  * This is the big difference. Set our contract in state.
+		  */
+		  setContract(contract);
+		} else {
+			console.log('Ethereum object not found');
+		}
+	}, []);
+
+	const verify = async (voucher) => {
+		setItem(null);
+		setError(false);
+		try {
+			setLoading(true);
+			const { ethereum } = window;
+			if (ethereum) {
+				if (contract) {
+					const addr = await contract.ownerOf(text);
+					console.log(addr);
+					console.log(account);
+
+					if (addr) {
+						setAddr(addr.toLowerCase());
+						const tokenUri = await contract.tokenURI(parseInt(text))
+						const meta = await axios.get(`https://ipfs.io/ipfs/${tokenUri.replace('ipfs://', "")}`);
+						let item = {
+							tokenId: text,
+							name: meta.data.name,
+							description: meta.data.description,
+							image: `https://ipfs.io/ipfs/${meta.data.image.replace('ipfs://', "")}`,
+						}
+						setItem(item);
+						console.log(item);
+					}	
+					setLoading(false)
+				}				
+			} else {
+				console.log("Ethereum object doesn't exist!");
+				setLoading(false);
+			}
+		} catch (error) {
+			console.log(error.message)
+			setLoading(false);
+			setError(true);
+		}
+	}
+
+	const renderResult = () => {
+		if(item !== null){
+			return (
+				<div className="w-full max-w-xs">
+					<h1 className="p-4 text-blue-400 font-extrabold">{`Found Crypto Stamp owned by ${(addr === account) ? "You" : "following account address " + addr.substring(0, 4) + "..." + addr.substring(addr.length-4, addr.length) }`}</h1>
+					<div className="border shadow rounded-xl overflow-hidden">
+						<img src={item.image} className="object-scale-down h-36 w-full" alt="Crypto Stamp" />
+						<div className="p-4 bg-black">
+							<p className="text-medium font-bold text-white">{item.name}</p>
+							<p className="text-lg font-bold text-gray-400">{item.description}</p>
+							<p className="text-lg font-bold text-gray-400">Token ID: {item.tokenId}</p>
+						</div>
+					</div>
+				</div>
+			);
+		}
+	}
+
+	return (		
+		<div className="w-full max-w-xs">
+			<form className="bg-white shadow-md rounded px-8 pt-6 pb-4 mb-4">
+				{ !loading && error && (<p className="mb-5 p-4 bg-red-400 text-lg font-bold text-white rounded-xl">Could't find any Token of certain ID, this may happen if the Stamp not redeem yet</p>)}
+			  	{loading && (<p className="mt-2 mb-5 p-4 bg-yellow-400 text-xl font-bold text-white rounded-xl">Checking from blockchain network, please wait...</p>)}
+				<div className="mb-4">
+				  	<label className="block text-gray-700 text-sm font-bold mb-2">
+						Token ID
+				  	</label>
+				  	<input value={text} onChange={onChangeText} className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" type="text" id="tokenId" />
+				</div>
+				
+				<div className="flex items-center justify-between">
+					<button onClick={verify} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" type="button">
+						Verify
+				  	</button>
+				</div>
+			</form>
+			<div className="flex content-center justify-center">
+			 	{renderResult()} 	
+			 </div>
+		</div>
+	);
+}
+
+export default VerifyPage;
