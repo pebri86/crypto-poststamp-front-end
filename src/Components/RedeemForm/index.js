@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { ethers } from 'ethers';
 import { CONTRACT_ADDRESS } from '../../constants';
-import nftStamp from '../../utils/NFTStamp.json';
+import nftStamp from '../../utils/PeruriCryptoStamp.json';
 import { QrReader } from '@blackbox-vision/react-qr-reader';
 
 const RedeemForm = ({ account }) => {
@@ -91,7 +91,7 @@ const RedeemForm = ({ account }) => {
 	}
 
 	return (		
-		<div className="w-full max-w-xs">
+		<div className="w-full lg:w-1/2">
 			<form className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
 				{!camera && (
 				<div className="mb-4">
@@ -101,8 +101,8 @@ const RedeemForm = ({ account }) => {
 				  	<textarea value={text} onChange={onChangeText} className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="voucher" />
 				</div>)}
 				
-				<div className={`flex items-center ${camera ? "justify-center" : "justify-between"}`}>
-				  	{!camera && (<button onClick={doRedeem} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" type="button">
+				<div className={`flex items-center ${camera ? "justify-center" : "justify-end"}`}>
+				  	{!camera && (<button onClick={doRedeem} className="bg-blue-500 hover:bg-blue-700 text-white font-bold mr-2 py-2 px-4 rounded focus:outline-none focus:shadow-outline" type="button">
 						Redeem
 				  	</button>)}
 				  	<button onClick={useCamera} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" type="button">
@@ -110,7 +110,7 @@ const RedeemForm = ({ account }) => {
 				  	</button>
 				</div>
 
-				{camera && (
+				{camera && (		
 					<QrReader
 				  		onResult = { handleScan }
 				  		constraints = {{ facingMode: 'environment' }}

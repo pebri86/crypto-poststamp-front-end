@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { ethers } from 'ethers';
 import { CONTRACT_ADDRESS } from '../../constants';
-import nftStamp from '../../utils/NFTStamp.json';
+import nftStamp from '../../utils/PeruriCryptoStamp.json';
 import axios from 'axios';
 
 const MyStamp = ({ account }) => {
@@ -41,11 +41,13 @@ const MyStamp = ({ account }) => {
 					const items = await Promise.all(data.map(async i => {
 						const tokenUri = await contract.tokenURI(i)
 						const meta = await axios.get(`https://ipfs.io/ipfs/${tokenUri.replace('ipfs://', "")}`);
+						//const meta = await axios.get(`http://10.30.11.67:8080/ipfs/${tokenUri.replace('ipfs://', "")}`);
 						let item = {
 							tokenId: i.toNumber(),
 					        name: meta.data.name,
 					        description: meta.data.description,
 					        image: `https://ipfs.io/ipfs/${meta.data.image.replace('ipfs://', "")}`,
+					        //image: `http://10.30.11.67:8080/ipfs/${meta.data.image.replace('ipfs://', "")}`,
 					    }
 						return item
 					}))
@@ -81,8 +83,9 @@ const MyStamp = ({ account }) => {
 				<img src={nft.image} className="object-scale-down h-48 w-full" alt="Crypto Stamp" />
 				<div className="p-4 bg-black">
 				<p className="text-lg font-bold text-white">{nft.name}</p>
-				<p className="text-xl font-bold text-gray-400">{nft.description}</p>
-				<p className="text-xl font-bold text-gray-400">Token ID: {nft.tokenId}</p>
+				<p className="text-sm font-bold text-gray-400">{nft.description}</p>
+				<p className="text-sm font-bold text-gray-400">Token ID: {nft.tokenId}</p>
+				<a target="_blank" href={`https://testnets.opensea.io/assets/0x4a7940b20ac8812ac0993b2f3178f17404e2ef8b/${nft.tokenId}`} className="text-sm text-gray-200">See @opensea here</a>
 				</div>
 				</div>
 				))

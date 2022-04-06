@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { ethers } from 'ethers';
 import { CONTRACT_ADDRESS } from './constants';
-import nftStamp from './utils/NFTStamp.json';
+import nftStamp from './utils/PeruriCryptoStamp.json';
 import './App.css';
 import MyStamp from './Components/MyStamp';
 import RedeemForm from './Components/RedeemForm';
